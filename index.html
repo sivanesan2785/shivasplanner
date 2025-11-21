@@ -18,72 +18,84 @@
 
   <style>
     :root {
-      /* default (light) theme variables */
-      --bg-body: #f3f4f6;
-      --text-main: #0f172a;
-      --card-bg: #ffffff;
-      --card-border: #e5e7eb;
-      --input-bg: #f9fafb;
-      --input-border: #d1d5db;
-      --muted-text: #6b7280;
-      --badge-daily-bg: #0f766e;
-      --badge-once-bg: #4b5563;
-      --table-bg: #ffffff;
-      --table-border: #e5e7eb;
-    }
-
-    body.theme-dark {
-      --bg-body: #020617;
-      --text-main: #f9fafb;
+      --bg-color: #0f172a;
+      --text-color: #e5e7eb;
       --card-bg: #020617;
       --card-border: #1f2937;
-      --input-bg: #020617;
-      --input-border: #1f2937;
       --muted-text: #9ca3af;
-      --badge-daily-bg: #0f766e;
-      --badge-once-bg: #4b5563;
-      --table-bg: #020617;
+      --muted-bg: #111827;
+      --badge-daily: #0f766e;
+      --badge-once: #4b5563;
+      --input-bg: #020617;
       --table-border: #1f2937;
     }
 
+    body.theme-dark {
+      --bg-color: #0f172a;
+      --text-color: #e5e7eb;
+      --card-bg: #020617;
+      --card-border: #1f2937;
+      --muted-text: #9ca3af;
+      --muted-bg: #111827;
+      --badge-daily: #0f766e;
+      --badge-once: #4b5563;
+      --input-bg: #020617;
+      --table-border: #1f2937;
+    }
+
+    body.theme-light {
+      --bg-color: #f9fafb;
+      --text-color: #111827;
+      --card-bg: #ffffff;
+      --card-border: #e5e7eb;
+      --muted-text: #6b7280;
+      --muted-bg: #e5e7eb;
+      --badge-daily: #0f766e;
+      --badge-once: #6b7280;
+      --input-bg: #f9fafb;
+      --table-border: #d1d5db;
+    }
+
     body {
-      background: var(--bg-body);
-      color: var(--text-main);
+      background: var(--bg-color);
+      color: var(--text-color);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 1rem;
+      transition: background 0.2s ease, border-color 0.2s ease;
     }
     .card-header {
       background: transparent;
       border-bottom: 1px solid var(--card-border);
     }
+
     .nav-pills .nav-link {
       border-radius: 999px;
     }
     .nav-pills .nav-link.active {
       background: #3b82f6;
     }
+
     .form-control,
     .form-select {
       background: var(--input-bg);
-      border-color: var(--input-border);
-      color: var(--text-main);
+      border-color: var(--card-border);
+      color: var(--text-color);
     }
     .form-control:focus,
     .form-select:focus {
       border-color: #3b82f6;
       box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
       background: var(--input-bg);
-      color: var(--text-main);
+      color: var(--text-color);
     }
-    .form-control::placeholder {
-      color: var(--muted-text);
-    }
+
     .task-item {
       display: flex;
       align-items: center;
@@ -103,38 +115,76 @@
       font-size: 0.75rem;
       color: var(--muted-text);
     }
+
     .shortcut-badge {
       font-size: 0.75rem;
       border-radius: 999px;
       padding: 0.1rem 0.6rem;
-      background: var(--card-bg);
+      background: var(--muted-bg);
       border: 1px solid var(--card-border);
       color: var(--muted-text);
       white-space: nowrap;
     }
+
     textarea {
       min-height: 220px;
       resize: vertical;
       background: var(--input-bg);
-      color: var(--text-main);
+      color: var(--text-color);
     }
-    .table-dark {
-      --bs-table-bg: var(--table-bg);
-      --bs-table-striped-bg: var(--table-bg);
-      --bs-table-striped-color: var(--text-main);
-      --bs-table-hover-bg: var(--table-bg);
-      --bs-table-hover-color: var(--text-main);
-      color: var(--text-main);
+
+    .table-custom {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border-color: var(--table-border);
+      font-size: 0.85rem;
+    }
+    .table-custom thead {
+      color: var(--muted-text);
+    }
+    .table-custom tbody tr {
       border-color: var(--table-border);
     }
+    .table-custom tbody tr:hover {
+      background-color: rgba(148, 163, 184, 0.05);
+    }
+
+    .table-group-header td {
+      background: var(--muted-bg);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
     .badge-daily {
-      background: var(--badge-daily-bg);
+      background: var(--badge-daily);
     }
     .badge-once {
-      background: var(--badge-once-bg);
+      background: var(--badge-once);
     }
+
     .text-secondary {
       color: var(--muted-text) !important;
+    }
+
+    .btn-outline-light,
+    .btn-outline-secondary {
+      color: var(--text-color);
+      border-color: var(--card-border);
+      background-color: transparent;
+    }
+    .btn-outline-light:hover,
+    .btn-outline-secondary:hover {
+      background-color: var(--muted-bg);
+      color: var(--text-color);
+    }
+
+    @media (max-width: 576px) {
+      .task-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -155,17 +205,19 @@
         <span class="shortcut-badge">A → Focus To-Do input</span>
         <span class="shortcut-badge">Ctrl + Enter → Add To-Do</span>
 
-        <!-- Import / Export + Theme -->
-        <button class="btn btn-sm btn-outline-secondary" id="exportBtn">
+        <!-- Theme Toggle -->
+        <button class="btn btn-outline-secondary btn-sm" id="themeToggleBtn">
+          <i class="bi bi-brightness-high me-1"></i> Light
+        </button>
+
+        <!-- Export / Import -->
+        <button class="btn btn-outline-secondary btn-sm" id="exportBtn">
           <i class="bi bi-download me-1"></i> Export
         </button>
-        <button class="btn btn-sm btn-outline-secondary" id="importBtn">
+        <label class="btn btn-outline-secondary btn-sm mb-0">
           <i class="bi bi-upload me-1"></i> Import
-        </button>
-        <button class="btn btn-sm btn-outline-secondary" id="themeToggle">
-          <!-- label filled by JS -->
-        </button>
-        <input type="file" id="importFile" accept="application/json" class="d-none" />
+          <input type="file" id="importInput" accept="application/json" hidden />
+        </label>
       </div>
     </div>
 
@@ -365,7 +417,7 @@
             <div>
               <h5 class="mb-0">Workouts History</h5>
               <small class="text-secondary">
-                Filter by date to see that day's workouts.
+                Grouped by workout day. Filter by date to see that day's workouts.
               </small>
             </div>
             <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
@@ -378,14 +430,13 @@
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
-              <table class="table table-dark table-striped mb-0 align-middle" id="workoutTable">
+              <table class="table table-custom table-striped mb-0 align-middle" id="workoutTable">
                 <thead>
                   <tr class="small text-secondary">
-                    <th>Date</th>
-                    <th>Workout</th>
-                    <th>Sets</th>
-                    <th>Reps</th>
-                    <th>Weight</th>
+                    <th style="min-width: 80px;">Workout</th>
+                    <th style="width: 70px;">Sets</th>
+                    <th style="width: 70px;">Reps</th>
+                    <th style="width: 80px;">Weight</th>
                     <th>Notes</th>
                     <th style="width: 90px;">Actions</th>
                   </tr>
@@ -451,9 +502,8 @@
       todos: "dailyApp.todos",
       workouts: "dailyApp.workouts",
       journal: "dailyApp.journal",
+      theme: "dailyApp.theme",
     };
-
-    const THEME_KEY = "dailyApp.theme";
 
     function todayStr() {
       const d = new Date();
@@ -482,26 +532,38 @@
     }
 
     // ----------------- THEME -----------------
-    function applyTheme(themeClass) {
-      document.body.classList.remove("theme-dark", "theme-light");
-      document.body.classList.add(themeClass);
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
 
-      const btn = document.getElementById("themeToggle");
-      if (btn) {
-        if (themeClass === "theme-dark") {
-          btn.innerHTML =
-            '<i class="bi bi-brightness-high me-1"></i> Light';
-        } else {
-          btn.innerHTML =
-            '<i class="bi bi-moon-stars me-1"></i> Dark';
-        }
+    function applyTheme(theme) {
+      const t = theme === "light" ? "light" : "dark";
+      document.body.classList.remove("theme-light", "theme-dark");
+      document.body.classList.add("theme-" + t);
+      saveJson(storageKeys.theme, t);
+      updateThemeToggleLabel();
+    }
+
+    function updateThemeToggleLabel() {
+      const current =
+        document.body.classList.contains("theme-light") ? "light" : "dark";
+      if (!themeToggleBtn) return;
+      if (current === "light") {
+        themeToggleBtn.innerHTML =
+          '<i class="bi bi-moon-stars me-1"></i> Dark';
+      } else {
+        themeToggleBtn.innerHTML =
+          '<i class="bi bi-brightness-high me-1"></i> Light';
       }
     }
 
-    function initTheme() {
-      const saved = localStorage.getItem(THEME_KEY);
-      const theme = saved || "theme-dark"; // default: dark background, white text
-      applyTheme(theme);
+    const savedTheme = loadJson(storageKeys.theme, "dark");
+    applyTheme(savedTheme);
+
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener("click", () => {
+        const current =
+          document.body.classList.contains("theme-light") ? "light" : "dark";
+        applyTheme(current === "light" ? "dark" : "light");
+      });
     }
 
     // ----------------- TODOS -----------------
@@ -765,19 +827,36 @@
 
       let visibleCount = 0;
 
+      // Group by date
+      const grouped = {};
+
       workouts
         .slice()
         .sort((a, b) => (a.date || "").localeCompare(b.date || ""))
         .forEach((w) => {
           if (filterDate && w.date !== filterDate) return;
+          const key = w.date || "No date";
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(w);
+        });
 
-          visibleCount++;
+      const dates = Object.keys(grouped);
+      dates.forEach((dateKey) => {
+        visibleCount += grouped[dateKey].length;
 
+        // Header row per day
+        const headerTr = document.createElement("tr");
+        headerTr.className = "table-group-header";
+        const headerTd = document.createElement("td");
+        headerTd.colSpan = 6;
+        headerTd.textContent =
+          dateKey === "No date" ? "No date set" : `Workout Day: ${dateKey}`;
+        headerTr.appendChild(headerTd);
+        workoutTableBody.appendChild(headerTr);
+
+        grouped[dateKey].forEach((w) => {
           const tr = document.createElement("tr");
           tr.dataset.id = w.id;
-
-          const dateTd = document.createElement("td");
-          dateTd.textContent = w.date || "";
 
           const nameTd = document.createElement("td");
           nameTd.textContent = w.name;
@@ -828,7 +907,6 @@
           actionsTd.appendChild(editBtn);
           actionsTd.appendChild(deleteBtn);
 
-          tr.appendChild(dateTd);
           tr.appendChild(nameTd);
           tr.appendChild(setsTd);
           tr.appendChild(repsTd);
@@ -838,6 +916,7 @@
 
           workoutTableBody.appendChild(tr);
         });
+      });
 
       noWorkoutsMsg.style.display = visibleCount ? "none" : "block";
     }
@@ -910,7 +989,6 @@
     });
 
     journalText.addEventListener("input", () => {
-      // small debounce
       if (journalText._saveTimeout) {
         clearTimeout(journalText._saveTimeout);
       }
@@ -926,103 +1004,70 @@
 
     // ----------------- IMPORT / EXPORT -----------------
     const exportBtn = document.getElementById("exportBtn");
-    const importBtn = document.getElementById("importBtn");
-    const importFile = document.getElementById("importFile");
+    const importInput = document.getElementById("importInput");
 
-    exportBtn.addEventListener("click", () => {
-      const themeClass = document.body.classList.contains("theme-dark")
-        ? "theme-dark"
-        : "theme-light";
-
+    function exportData() {
       const data = {
         todos,
         workouts,
         journal,
-        theme: themeClass,
+        theme: document.body.classList.contains("theme-light") ? "light" : "dark",
       };
-
       const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: "application/json",
       });
-
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      const d = new Date();
-      const filename =
-        "daily-dashboard-backup-" +
-        d.getFullYear() +
-        "-" +
-        String(d.getMonth() + 1).padStart(2, "0") +
-        "-" +
-        String(d.getDate()).padStart(2, "0") +
-        ".json";
-
       a.href = url;
-      a.download = filename;
+      a.download = "my-daily-dashboard-backup-" + todayStr() + ".json";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    });
+    }
 
-    importBtn.addEventListener("click", () => {
-      importFile.click();
-    });
-
-    importFile.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
+    function importDataFromFile(file) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = (e) => {
         try {
-          const parsed = JSON.parse(event.target.result);
-          if (!parsed || typeof parsed !== "object") {
-            throw new Error("Invalid JSON file.");
-          }
-
-          // basic validation
-          if (!Array.isArray(parsed.todos) ||
-              !Array.isArray(parsed.workouts) ||
-              typeof parsed.journal !== "object") {
-            const proceed = confirm(
-              "This file doesn't look like a dashboard backup. Try to import anyway?"
-            );
-            if (!proceed) return;
-          }
-
-          if (parsed.todos) {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.todos && Array.isArray(parsed.todos)) {
             todos = parsed.todos;
             saveJson(storageKeys.todos, todos);
           }
-          if (parsed.workouts) {
+          if (parsed.workouts && Array.isArray(parsed.workouts)) {
             workouts = parsed.workouts;
             saveJson(storageKeys.workouts, workouts);
           }
-          if (parsed.journal) {
+          if (parsed.journal && typeof parsed.journal === "object") {
             journal = parsed.journal;
             saveJson(storageKeys.journal, journal);
           }
           if (parsed.theme) {
-            localStorage.setItem(THEME_KEY, parsed.theme);
             applyTheme(parsed.theme);
           }
-
           renderTodos();
           renderWorkouts();
-          const d = journalDate.value || todayStr();
-          loadJournalForDate(d);
-
-          alert("Import completed successfully ✅");
+          loadJournalForDate(journalDate.value || todayStr());
+          alert("Import successful!");
         } catch (err) {
           console.error(err);
-          alert("Could not import file: " + err.message);
-        } finally {
-          importFile.value = "";
+          alert("Import failed: invalid file.");
         }
       };
       reader.readAsText(file);
-    });
+    }
+
+    if (exportBtn) {
+      exportBtn.addEventListener("click", exportData);
+    }
+    if (importInput) {
+      importInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) importDataFromFile(file);
+        e.target.value = "";
+      });
+    }
 
     // ----------------- SHORTCUTS -----------------
     document.addEventListener("keydown", (e) => {
@@ -1046,10 +1091,6 @@
 
     // ----------------- INIT -----------------
     document.addEventListener("DOMContentLoaded", () => {
-      // Theme first
-      initTheme();
-
-      // Set default dates
       const today = todayStr();
       if (!workoutDate.value) workoutDate.value = today;
       if (!workoutFilterDate.value) workoutFilterDate.value = "";
@@ -1061,6 +1102,7 @@
 
       // Focus todo field on load (shortcut style)
       todoInput.focus();
+      updateThemeToggleLabel();
     });
   </script>
 </body>
