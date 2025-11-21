@@ -17,20 +17,50 @@
   />
 
   <style>
+    :root {
+      /* default (light) theme variables */
+      --bg-body: #f3f4f6;
+      --text-main: #0f172a;
+      --card-bg: #ffffff;
+      --card-border: #e5e7eb;
+      --input-bg: #f9fafb;
+      --input-border: #d1d5db;
+      --muted-text: #6b7280;
+      --badge-daily-bg: #0f766e;
+      --badge-once-bg: #4b5563;
+      --table-bg: #ffffff;
+      --table-border: #e5e7eb;
+    }
+
+    body.theme-dark {
+      --bg-body: #020617;
+      --text-main: #f9fafb;
+      --card-bg: #020617;
+      --card-border: #1f2937;
+      --input-bg: #020617;
+      --input-border: #1f2937;
+      --muted-text: #9ca3af;
+      --badge-daily-bg: #0f766e;
+      --badge-once-bg: #4b5563;
+      --table-bg: #020617;
+      --table-border: #1f2937;
+    }
+
     body {
-      background: #f3f4f6;
-      color: #111827;
+      background: var(--bg-body);
+      color: var(--text-main);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
     }
+
     .card {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 1rem;
     }
     .card-header {
       background: transparent;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--card-border);
     }
     .nav-pills .nav-link {
       border-radius: 999px;
@@ -40,16 +70,19 @@
     }
     .form-control,
     .form-select {
-      background: #ffffff;
-      border-color: #d1d5db;
-      color: #111827;
+      background: var(--input-bg);
+      border-color: var(--input-border);
+      color: var(--text-main);
     }
     .form-control:focus,
     .form-select:focus {
       border-color: #3b82f6;
       box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-      background: #ffffff;
-      color: #111827;
+      background: var(--input-bg);
+      color: var(--text-main);
+    }
+    .form-control::placeholder {
+      color: var(--muted-text);
     }
     .task-item {
       display: flex;
@@ -58,8 +91,8 @@
       gap: 0.5rem;
       padding: 0.35rem 0.6rem;
       border-radius: 0.75rem;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+      background: var(--card-bg);
+      border: 1px solid #111827;
       font-size: 0.9rem;
     }
     .task-item.completed .task-text {
@@ -68,42 +101,44 @@
     }
     .task-meta {
       font-size: 0.75rem;
-      color: #6b7280;
+      color: var(--muted-text);
     }
     .shortcut-badge {
       font-size: 0.75rem;
       border-radius: 999px;
       padding: 0.1rem 0.6rem;
-      background: #e5e7eb;
-      border: 1px solid #d1d5db;
-      color: #374151;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--muted-text);
       white-space: nowrap;
     }
     textarea {
       min-height: 220px;
       resize: vertical;
+      background: var(--input-bg);
+      color: var(--text-main);
     }
-    /* Override dark table to a light style */
     .table-dark {
-      --bs-table-bg: #ffffff;
-      --bs-table-striped-bg: #f9fafb;
-      --bs-table-striped-color: #111827;
-      --bs-table-hover-bg: #f3f4f6;
-      --bs-table-hover-color: #111827;
-      border-color: #e5e7eb;
-      color: #111827;
+      --bs-table-bg: var(--table-bg);
+      --bs-table-striped-bg: var(--table-bg);
+      --bs-table-striped-color: var(--text-main);
+      --bs-table-hover-bg: var(--table-bg);
+      --bs-table-hover-color: var(--text-main);
+      color: var(--text-main);
+      border-color: var(--table-border);
     }
     .badge-daily {
-      background: #d1fae5;
-      color: #065f46;
+      background: var(--badge-daily-bg);
     }
     .badge-once {
-      background: #e5e7eb;
-      color: #374151;
+      background: var(--badge-once-bg);
+    }
+    .text-secondary {
+      color: var(--muted-text) !important;
     }
   </style>
 </head>
-<body>
+<body class="theme-dark">
   <div class="container py-4">
     <!-- Header -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
@@ -119,14 +154,18 @@
         <span class="shortcut-badge">J → Journal</span>
         <span class="shortcut-badge">A → Focus To-Do input</span>
         <span class="shortcut-badge">Ctrl + Enter → Add To-Do</span>
-        <!-- Import / Export buttons -->
-        <button class="btn btn-outline-secondary btn-sm" id="exportDataBtn">
+
+        <!-- Import / Export + Theme -->
+        <button class="btn btn-sm btn-outline-secondary" id="exportBtn">
           <i class="bi bi-download me-1"></i> Export
         </button>
-        <button class="btn btn-outline-secondary btn-sm" id="importDataBtn">
+        <button class="btn btn-sm btn-outline-secondary" id="importBtn">
           <i class="bi bi-upload me-1"></i> Import
         </button>
-        <input type="file" id="importFileInput" accept="application/json" class="d-none" />
+        <button class="btn btn-sm btn-outline-secondary" id="themeToggle">
+          <!-- label filled by JS -->
+        </button>
+        <input type="file" id="importFile" accept="application/json" class="d-none" />
       </div>
     </div>
 
@@ -332,7 +371,7 @@
             <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
               <label for="workoutFilterDate" class="small me-1">Filter date</label>
               <input type="date" class="form-control form-control-sm" id="workoutFilterDate" />
-              <button class="btn btn-sm btn-outline-secondary" id="workoutClearFilter">
+              <button class="btn btn-sm btn-outline-light" id="workoutClearFilter">
                 Clear
               </button>
             </div>
@@ -414,6 +453,8 @@
       journal: "dailyApp.journal",
     };
 
+    const THEME_KEY = "dailyApp.theme";
+
     function todayStr() {
       const d = new Date();
       const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -438,6 +479,29 @@
 
     function createId() {
       return Date.now().toString(36) + Math.random().toString(16).slice(2);
+    }
+
+    // ----------------- THEME -----------------
+    function applyTheme(themeClass) {
+      document.body.classList.remove("theme-dark", "theme-light");
+      document.body.classList.add(themeClass);
+
+      const btn = document.getElementById("themeToggle");
+      if (btn) {
+        if (themeClass === "theme-dark") {
+          btn.innerHTML =
+            '<i class="bi bi-brightness-high me-1"></i> Light';
+        } else {
+          btn.innerHTML =
+            '<i class="bi bi-moon-stars me-1"></i> Dark';
+        }
+      }
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      const theme = saved || "theme-dark"; // default: dark background, white text
+      applyTheme(theme);
     }
 
     // ----------------- TODOS -----------------
@@ -583,7 +647,7 @@
         badge.textContent = todo.isDaily ? "Daily" : "Normal";
 
         const editBtn = document.createElement("button");
-        editBtn.className = "btn btn-sm btn-outline-secondary border-0";
+        editBtn.className = "btn btn-sm btn-outline-light border-0";
         editBtn.innerHTML = '<i class="bi bi-pencil-square"></i>';
         editBtn.title = "Edit task";
         editBtn.addEventListener("click", () => {
@@ -733,7 +797,7 @@
           const actionsTd = document.createElement("td");
 
           const editBtn = document.createElement("button");
-          editBtn.className = "btn btn-sm btn-outline-secondary me-1";
+          editBtn.className = "btn btn-sm btn-outline-light me-1";
           editBtn.innerHTML = '<i class="bi bi-pencil-square"></i>';
           editBtn.title = "Edit workout";
           editBtn.addEventListener("click", () => {
@@ -861,71 +925,100 @@
     });
 
     // ----------------- IMPORT / EXPORT -----------------
-    const exportDataBtn = document.getElementById("exportDataBtn");
-    const importDataBtn = document.getElementById("importDataBtn");
-    const importFileInput = document.getElementById("importFileInput");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const importFile = document.getElementById("importFile");
 
-    exportDataBtn.addEventListener("click", () => {
-      const dataBundle = {
+    exportBtn.addEventListener("click", () => {
+      const themeClass = document.body.classList.contains("theme-dark")
+        ? "theme-dark"
+        : "theme-light";
+
+      const data = {
         todos,
         workouts,
         journal,
-        exportedAt: new Date().toISOString(),
+        theme: themeClass,
       };
 
-      const blob = new Blob([JSON.stringify(dataBundle, null, 2)], {
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: "application/json",
       });
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
+      const d = new Date();
+      const filename =
+        "daily-dashboard-backup-" +
+        d.getFullYear() +
+        "-" +
+        String(d.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(d.getDate()).padStart(2, "0") +
+        ".json";
+
       a.href = url;
-      a.download = "daily-dashboard-backup-" + todayStr() + ".json";
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     });
 
-    importDataBtn.addEventListener("click", () => {
-      importFileInput.value = "";
-      importFileInput.click();
+    importBtn.addEventListener("click", () => {
+      importFile.click();
     });
 
-    importFileInput.addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
+    importFile.addEventListener("change", (e) => {
+      const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function (event) {
+      reader.onload = (event) => {
         try {
           const parsed = JSON.parse(event.target.result);
-
           if (!parsed || typeof parsed !== "object") {
-            alert("Invalid file format.");
-            return;
+            throw new Error("Invalid JSON file.");
           }
 
-          const importedTodos = Array.isArray(parsed.todos) ? parsed.todos : [];
-          const importedWorkouts = Array.isArray(parsed.workouts) ? parsed.workouts : [];
-          const importedJournal =
-            parsed.journal && typeof parsed.journal === "object" ? parsed.journal : {};
+          // basic validation
+          if (!Array.isArray(parsed.todos) ||
+              !Array.isArray(parsed.workouts) ||
+              typeof parsed.journal !== "object") {
+            const proceed = confirm(
+              "This file doesn't look like a dashboard backup. Try to import anyway?"
+            );
+            if (!proceed) return;
+          }
 
-          todos = importedTodos;
-          workouts = importedWorkouts;
-          journal = importedJournal;
-
-          saveJson(storageKeys.todos, todos);
-          saveJson(storageKeys.workouts, workouts);
-          saveJson(storageKeys.journal, journal);
+          if (parsed.todos) {
+            todos = parsed.todos;
+            saveJson(storageKeys.todos, todos);
+          }
+          if (parsed.workouts) {
+            workouts = parsed.workouts;
+            saveJson(storageKeys.workouts, workouts);
+          }
+          if (parsed.journal) {
+            journal = parsed.journal;
+            saveJson(storageKeys.journal, journal);
+          }
+          if (parsed.theme) {
+            localStorage.setItem(THEME_KEY, parsed.theme);
+            applyTheme(parsed.theme);
+          }
 
           renderTodos();
           renderWorkouts();
-          loadJournalForDate(journalDate.value || todayStr());
+          const d = journalDate.value || todayStr();
+          loadJournalForDate(d);
 
-          alert("Data imported successfully!");
+          alert("Import completed successfully ✅");
         } catch (err) {
-          console.error("Import error:", err);
-          alert("Failed to import data. Please check the file.");
+          console.error(err);
+          alert("Could not import file: " + err.message);
+        } finally {
+          importFile.value = "";
         }
       };
       reader.readAsText(file);
@@ -953,6 +1046,9 @@
 
     // ----------------- INIT -----------------
     document.addEventListener("DOMContentLoaded", () => {
+      // Theme first
+      initTheme();
+
       // Set default dates
       const today = todayStr();
       if (!workoutDate.value) workoutDate.value = today;
