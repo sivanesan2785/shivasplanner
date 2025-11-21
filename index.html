@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Daily Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  />
+
+  <style>
+    body {
+      background: #0f172a;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+    .card {
+      background: #020617;
+      border: 1px solid #1f2937;
+      border-radius: 1rem;
+    }
+    .card-header {
+      background: transparent;
+      border-bottom: 1px solid #1f2937;
+    }
+    .nav-pills .nav-link {
+      border-radius: 999px;
+    }
+    .nav-pills .nav-link.active {
+      background: #3b82f6;
+    }
+    .form-control,
+    .form-select {
+      background: #020617;
+      border-color: #1f2937;
+      color: #e5e7eb;
+    }
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+      background: #020617;
+      color: #e5e7eb;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.35rem 0.6rem;
+      border-radius: 0.75rem;
+      background: #020617;
+      border: 1px solid #111827;
+      font-size: 0.9rem;
+    }
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    .task-meta {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    .shortcut-badge {
+      font-size: 0.75rem;
+      border-radius: 999px;
+      padding: 0.1rem 0.6rem;
+      background: #111827;
+      border: 1px solid #1f2937;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+    }
+    .table-dark {
+      --bs-table-bg: #020617;
+      --bs-table-striped-bg: #020617;
+      --bs-table-striped-color: #e5e7eb;
+      --bs-table-hover-bg: #020617;
+      --bs-table-hover-color: #e5e7eb;
+      border-color: #1f2937;
+    }
+    .badge-daily {
+      background: #0f766e;
+    }
+    .badge-once {
+      background: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+      <div>
+        <h2 class="fw-bold mb-1">My Daily Dashboard</h2>
+        <div class="text-secondary small">
+          To-Do ✅ • Gym 🏋️ • Journal 📝 — everything in one page (saved in your browser).
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0">
+        <span class="shortcut-badge">T → To-Do</span>
+        <span class="shortcut-badge">G → Gym</span>
+        <span class="shortcut-badge">J → Journal</span>
+        <span class="shortcut-badge">A → Focus To-Do input</span>
+        <span class="shortcut-badge">Ctrl + Enter → Add To-Do</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-3" id="dashboardTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="todo-tab" data-bs-toggle="pill"
+          data-bs-target="#todo" type="button" role="tab">
+          <i class="bi bi-list-check me-1"></i> To-Do & Daily
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="gym-tab" data-bs-toggle="pill"
+          data-bs-target="#gym" type="button" role="tab">
+          <i class="bi bi-activity me-1"></i> Gym Tracker
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="journal-tab" data-bs-toggle="pill"
+          data-bs-target="#journal" type="button" role="tab">
+          <i class="bi bi-journal-text me-1"></i> Journal
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- To-Do TAB -->
+      <div class="tab-pane fade show active" id="todo" role="tabpanel"
+        aria-labelledby="todo-tab">
+        <div class="card mb-3">
+          <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-0">Add To-Do</h5>
+              <small class="text-secondary">
+                Mark <strong>Daily</strong> for habits you repeat everyday.
+              </small>
+            </div>
+            <div class="small text-secondary">
+              <span id="todoStatsToday"></span>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="todoForm" class="row g-2">
+              <div class="col-12 col-md-7">
+                <input
+                  type="text"
+                  id="todoInput"
+                  class="form-control"
+                  placeholder="e.g. Java DSA 2 hrs, English speaking practice..."
+                  autocomplete="off"
+                  required
+                />
+              </div>
+              <div class="col-6 col-md-2 d-flex align-items-center">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="todoIsDaily" />
+                  <label class="form-check-label" for="todoIsDaily">
+                    Daily task
+                  </label>
+                </div>
+              </div>
+              <div class="col-6 col-md-3 text-md-end">
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="bi bi-plus-lg me-1"></i> Add
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Daily Tasks / Habits</span>
+                <span class="badge rounded-pill bg-teal-subtle badge-daily">
+                  Everyday
+                </span>
+              </div>
+              <div class="card-body">
+                <div id="dailyTasksList" class="d-flex flex-column gap-2"></div>
+                <div id="noDailyTasks" class="text-secondary small mt-2">
+                  No daily tasks yet. Add some with the “Daily task” checkbox.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span>One-Time Tasks</span>
+                <span class="badge rounded-pill badge-once">
+                  Normal
+                </span>
+              </div>
+              <div class="card-body">
+                <div id="normalTasksList" class="d-flex flex-column gap-2"></div>
+                <div id="noNormalTasks" class="text-secondary small mt-2">
+                  No normal tasks yet. Add your one-time todos.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GYM TAB -->
+      <div class="tab-pane fade" id="gym" role="tabpanel" aria-labelledby="gym-tab">
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-0">Add Workout</h5>
+              <small class="text-secondary">
+                Track sets, reps and weight for progressive overload.
+              </small>
+            </div>
+            <div class="small text-secondary">
+              <span class="shortcut-badge">Tip: Use same date to compare progress.</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="workoutForm" class="row g-2">
+              <input type="hidden" id="workoutEditId" />
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1" for="workoutDate">Date</label>
+                <input type="date" class="form-control" id="workoutDate" />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small mb-1" for="workoutName">Workout</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="workoutName"
+                  placeholder="e.g. Bench Press"
+                  required
+                />
+              </div>
+              <div class="col-4 col-md-2">
+                <label class="form-label small mb-1" for="workoutSets">Sets</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="workoutSets"
+                  min="1"
+                  placeholder="3"
+                  required
+                />
+              </div>
+              <div class="col-4 col-md-2">
+                <label class="form-label small mb-1" for="workoutReps">Reps</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="workoutReps"
+                  min="1"
+                  placeholder="10"
+                  required
+                />
+              </div>
+              <div class="col-4 col-md-2">
+                <label class="form-label small mb-1" for="workoutWeight">Weight (kg)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="workoutWeight"
+                  min="0"
+                  step="0.5"
+                  placeholder="40"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small mb-1" for="workoutNotes">Notes (optional)</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="workoutNotes"
+                  placeholder="e.g. Last set to failure, increase next week"
+                />
+              </div>
+              <div class="col-12 col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-success w-100" id="workoutSubmitBtn">
+                  <i class="bi bi-plus-lg me-1"></i> Add Workout
+                </button>
+              </div>
+              <div class="col-12 col-md-3 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-secondary w-100" id="workoutResetBtn">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i> Clear Form
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-0">Workouts History</h5>
+              <small class="text-secondary">
+                Filter by date to see that day's workouts.
+              </small>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+              <label for="workoutFilterDate" class="small me-1">Filter date</label>
+              <input type="date" class="form-control form-control-sm" id="workoutFilterDate" />
+              <button class="btn btn-sm btn-outline-light" id="workoutClearFilter">
+                Clear
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-dark table-striped mb-0 align-middle" id="workoutTable">
+                <thead>
+                  <tr class="small text-secondary">
+                    <th>Date</th>
+                    <th>Workout</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
+                    <th>Weight</th>
+                    <th>Notes</th>
+                    <th style="width: 90px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="workoutTableBody">
+                  <!-- rows -->
+                </tbody>
+              </table>
+            </div>
+            <div class="p-3 text-secondary small" id="noWorkoutsMsg">
+              No workouts logged yet. Add your first set above 💪
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JOURNAL TAB -->
+      <div class="tab-pane fade" id="journal" role="tabpanel" aria-labelledby="journal-tab">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-0">Daily Journal</h5>
+              <small class="text-secondary">
+                Write a short report of your day – wins, failures, feelings.
+              </small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <label for="journalDate" class="small me-1">Date</label>
+              <input type="date" class="form-control form-control-sm" id="journalDate" />
+            </div>
+          </div>
+          <div class="card-body">
+            <textarea
+              class="form-control mb-2"
+              id="journalText"
+              placeholder="Example:
+- Study: Finished 2 hrs Java DSA and 1 hr aptitude
+- Gym: Hit new PR on bench
+- English: Had a 15-min conversation in English
+- Reflection: Need to reduce mobile usage at night..."
+            ></textarea>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-secondary">
+                Auto-saves as you type. You can also press the button to save manually.
+              </small>
+              <button class="btn btn-primary btn-sm" id="journalSaveBtn">
+                <i class="bi bi-save me-1"></i> Save Journal
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END JOURNAL -->
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ----------------- UTILITIES -----------------
+    const storageKeys = {
+      todos: "dailyApp.todos",
+      workouts: "dailyApp.workouts",
+      journal: "dailyApp.journal",
+    };
+
+    function todayStr() {
+      const d = new Date();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return d.getFullYear() + "-" + month + "-" + day;
+    }
+
+    function loadJson(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error("Failed to parse storage for", key, e);
+        return fallback;
+      }
+    }
+
+    function saveJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function createId() {
+      return Date.now().toString(36) + Math.random().toString(16).slice(2);
+    }
+
+    // ----------------- TODOS -----------------
+    let todos = loadJson(storageKeys.todos, []);
+
+    const todoForm = document.getElementById("todoForm");
+    const todoInput = document.getElementById("todoInput");
+    const todoIsDaily = document.getElementById("todoIsDaily");
+    const dailyTasksList = document.getElementById("dailyTasksList");
+    const normalTasksList = document.getElementById("normalTasksList");
+    const noDailyTasks = document.getElementById("noDailyTasks");
+    const noNormalTasks = document.getElementById("noNormalTasks");
+    const todoStatsToday = document.getElementById("todoStatsToday");
+
+    function addTodo(text, isDaily) {
+      const todo = {
+        id: createId(),
+        text,
+        isDaily: !!isDaily,
+        createdAt: new Date().toISOString(),
+        // per-day completion
+        lastCompletedDate: null,
+        completedToday: false,
+        // daily streak
+        streak: 0,
+        deleted: false,
+      };
+      todos.push(todo);
+      saveJson(storageKeys.todos, todos);
+      renderTodos();
+    }
+
+    function updateTodo(id, updates) {
+      todos = todos.map((t) => (t.id === id ? { ...t, ...updates } : t));
+      saveJson(storageKeys.todos, todos);
+      renderTodos();
+    }
+
+    function deleteTodo(id) {
+      todos = todos.filter((t) => t.id !== id);
+      saveJson(storageKeys.todos, todos);
+      renderTodos();
+    }
+
+    function handleTodoToggle(id, checked) {
+      const today = todayStr();
+      todos = todos.map((t) => {
+        if (t.id !== id) return t;
+        if (!checked) {
+          // uncheck for today
+          return { ...t, completedToday: false };
+        }
+        // checked
+        let newStreak = t.streak || 0;
+        if (t.lastCompletedDate === today) {
+          // already counted
+        } else {
+          if (t.lastCompletedDate) {
+            const last = new Date(t.lastCompletedDate);
+            const now = new Date(today);
+            const diffDays = (now - last) / (1000 * 60 * 60 * 24);
+            if (diffDays === 1) {
+              newStreak += 1;
+            } else {
+              newStreak = 1;
+            }
+          } else {
+            newStreak = 1;
+          }
+        }
+        return {
+          ...t,
+          completedToday: true,
+          lastCompletedDate: today,
+          streak: newStreak,
+        };
+      });
+      saveJson(storageKeys.todos, todos);
+      renderTodos();
+    }
+
+    function renderTodos() {
+      const today = todayStr();
+      dailyTasksList.innerHTML = "";
+      normalTasksList.innerHTML = "";
+
+      const daily = todos.filter((t) => t.isDaily);
+      const normal = todos.filter((t) => !t.isDaily);
+
+      noDailyTasks.style.display = daily.length ? "none" : "block";
+      noNormalTasks.style.display = normal.length ? "none" : "block";
+
+      let completedCount = 0;
+      let totalCount = 0;
+
+      function createTaskElement(todo) {
+        const isTodayDone = todo.completedToday && todo.lastCompletedDate === today;
+        if (isTodayDone) completedCount++;
+        totalCount++;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "task-item" + (isTodayDone ? " completed" : "");
+        wrapper.dataset.id = todo.id;
+
+        const left = document.createElement("div");
+        left.className = "d-flex align-items-start gap-2";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "form-check-input mt-1";
+        checkbox.checked = !!isTodayDone;
+        checkbox.addEventListener("change", () =>
+          handleTodoToggle(todo.id, checkbox.checked)
+        );
+
+        const textBlock = document.createElement("div");
+        const textSpan = document.createElement("div");
+        textSpan.className = "task-text";
+        textSpan.textContent = todo.text;
+
+        const meta = document.createElement("div");
+        meta.className = "task-meta";
+        const streakStr = todo.isDaily
+          ? `Streak: ${todo.streak || 0} day(s)`
+          : "One-time task";
+        const lastDoneStr = todo.lastCompletedDate
+          ? `Last done: ${todo.lastCompletedDate}`
+          : "Not done yet";
+        meta.textContent = todo.isDaily ? `${streakStr} • ${lastDoneStr}` : lastDoneStr;
+
+        textBlock.appendChild(textSpan);
+        textBlock.appendChild(meta);
+
+        left.appendChild(checkbox);
+        left.appendChild(textBlock);
+
+        const right = document.createElement("div");
+        right.className = "d-flex align-items-center gap-1";
+
+        const badge = document.createElement("span");
+        badge.className =
+          "badge small " + (todo.isDaily ? "badge-daily" : "badge-once");
+        badge.textContent = todo.isDaily ? "Daily" : "Normal";
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "btn btn-sm btn-outline-light border-0";
+        editBtn.innerHTML = '<i class="bi bi-pencil-square"></i>';
+        editBtn.title = "Edit task";
+        editBtn.addEventListener("click", () => {
+          const newText = prompt("Edit task:", todo.text);
+          if (newText && newText.trim()) {
+            updateTodo(todo.id, { text: newText.trim() });
+          }
+        });
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn btn-sm btn-outline-danger border-0";
+        deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+        deleteBtn.title = "Delete task";
+        deleteBtn.addEventListener("click", () => {
+          if (confirm("Delete this task?")) {
+            deleteTodo(todo.id);
+          }
+        });
+
+        right.appendChild(badge);
+        right.appendChild(editBtn);
+        right.appendChild(deleteBtn);
+
+        wrapper.appendChild(left);
+        wrapper.appendChild(right);
+
+        return wrapper;
+      }
+
+      daily.forEach((t) => dailyTasksList.appendChild(createTaskElement(t)));
+      normal.forEach((t) => normalTasksList.appendChild(createTaskElement(t)));
+
+      todoStatsToday.textContent =
+        totalCount === 0
+          ? ""
+          : `Today: ${completedCount} / ${totalCount} task(s) completed`;
+    }
+
+    todoForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = todoInput.value.trim();
+      if (!text) return;
+      addTodo(text, todoIsDaily.checked);
+      todoInput.value = "";
+      todoIsDaily.checked = false;
+      todoInput.focus();
+    });
+
+    // Ctrl+Enter shortcut to add To-Do
+    todoInput.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.key === "Enter") {
+        todoForm.requestSubmit();
+      }
+    });
+
+    // ----------------- WORKOUTS -----------------
+    let workouts = loadJson(storageKeys.workouts, []);
+
+    const workoutForm = document.getElementById("workoutForm");
+    const workoutEditId = document.getElementById("workoutEditId");
+    const workoutDate = document.getElementById("workoutDate");
+    const workoutName = document.getElementById("workoutName");
+    const workoutSets = document.getElementById("workoutSets");
+    const workoutReps = document.getElementById("workoutReps");
+    const workoutWeight = document.getElementById("workoutWeight");
+    const workoutNotes = document.getElementById("workoutNotes");
+    const workoutSubmitBtn = document.getElementById("workoutSubmitBtn");
+    const workoutResetBtn = document.getElementById("workoutResetBtn");
+    const workoutFilterDate = document.getElementById("workoutFilterDate");
+    const workoutClearFilter = document.getElementById("workoutClearFilter");
+    const workoutTableBody = document.getElementById("workoutTableBody");
+    const noWorkoutsMsg = document.getElementById("noWorkoutsMsg");
+
+    function setTodayIfEmpty(input) {
+      if (!input.value) input.value = todayStr();
+    }
+
+    function clearWorkoutForm() {
+      workoutEditId.value = "";
+      setTodayIfEmpty(workoutDate);
+      workoutName.value = "";
+      workoutSets.value = "";
+      workoutReps.value = "";
+      workoutWeight.value = "";
+      workoutNotes.value = "";
+      workoutSubmitBtn.innerHTML = '<i class="bi bi-plus-lg me-1"></i> Add Workout';
+      workoutSubmitBtn.classList.remove("btn-warning");
+      workoutSubmitBtn.classList.add("btn-success");
+    }
+
+    function addWorkout(data) {
+      workouts.push({
+        id: createId(),
+        ...data,
+      });
+      saveJson(storageKeys.workouts, workouts);
+      renderWorkouts();
+    }
+
+    function updateWorkout(id, updates) {
+      workouts = workouts.map((w) => (w.id === id ? { ...w, ...updates } : w));
+      saveJson(storageKeys.workouts, workouts);
+      renderWorkouts();
+    }
+
+    function deleteWorkout(id) {
+      workouts = workouts.filter((w) => w.id !== id);
+      saveJson(storageKeys.workouts, workouts);
+      renderWorkouts();
+    }
+
+    function renderWorkouts() {
+      const filterDate = workoutFilterDate.value || null;
+      workoutTableBody.innerHTML = "";
+
+      let visibleCount = 0;
+
+      workouts
+        .slice()
+        .sort((a, b) => (a.date || "").localeCompare(b.date || ""))
+        .forEach((w) => {
+          if (filterDate && w.date !== filterDate) return;
+
+          visibleCount++;
+
+          const tr = document.createElement("tr");
+          tr.dataset.id = w.id;
+
+          const dateTd = document.createElement("td");
+          dateTd.textContent = w.date || "";
+
+          const nameTd = document.createElement("td");
+          nameTd.textContent = w.name;
+
+          const setsTd = document.createElement("td");
+          setsTd.textContent = w.sets;
+
+          const repsTd = document.createElement("td");
+          repsTd.textContent = w.reps;
+
+          const weightTd = document.createElement("td");
+          weightTd.textContent = w.weight ? w.weight + " kg" : "-";
+
+          const notesTd = document.createElement("td");
+          notesTd.textContent = w.notes || "";
+
+          const actionsTd = document.createElement("td");
+
+          const editBtn = document.createElement("button");
+          editBtn.className = "btn btn-sm btn-outline-light me-1";
+          editBtn.innerHTML = '<i class="bi bi-pencil-square"></i>';
+          editBtn.title = "Edit workout";
+          editBtn.addEventListener("click", () => {
+            workoutEditId.value = w.id;
+            workoutDate.value = w.date;
+            workoutName.value = w.name;
+            workoutSets.value = w.sets;
+            workoutReps.value = w.reps;
+            workoutWeight.value = w.weight;
+            workoutNotes.value = w.notes || "";
+            workoutSubmitBtn.innerHTML =
+              '<i class="bi bi-check2-square me-1"></i> Update Workout';
+            workoutSubmitBtn.classList.remove("btn-success");
+            workoutSubmitBtn.classList.add("btn-warning");
+            document.getElementById("gym-tab").click();
+          });
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "btn btn-sm btn-outline-danger";
+          deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+          deleteBtn.title = "Delete workout";
+          deleteBtn.addEventListener("click", () => {
+            if (confirm("Delete this workout?")) {
+              deleteWorkout(w.id);
+            }
+          });
+
+          actionsTd.appendChild(editBtn);
+          actionsTd.appendChild(deleteBtn);
+
+          tr.appendChild(dateTd);
+          tr.appendChild(nameTd);
+          tr.appendChild(setsTd);
+          tr.appendChild(repsTd);
+          tr.appendChild(weightTd);
+          tr.appendChild(notesTd);
+          tr.appendChild(actionsTd);
+
+          workoutTableBody.appendChild(tr);
+        });
+
+      noWorkoutsMsg.style.display = visibleCount ? "none" : "block";
+    }
+
+    workoutForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      setTodayIfEmpty(workoutDate);
+
+      const data = {
+        date: workoutDate.value || todayStr(),
+        name: workoutName.value.trim(),
+        sets: Number(workoutSets.value || 0),
+        reps: Number(workoutReps.value || 0),
+        weight: workoutWeight.value ? Number(workoutWeight.value) : null,
+        notes: workoutNotes.value.trim(),
+      };
+
+      if (!data.name || !data.sets || !data.reps) {
+        alert("Please fill workout name, sets and reps.");
+        return;
+      }
+
+      const editId = workoutEditId.value;
+      if (editId) {
+        updateWorkout(editId, data);
+      } else {
+        addWorkout(data);
+      }
+      clearWorkoutForm();
+    });
+
+    workoutResetBtn.addEventListener("click", () => {
+      clearWorkoutForm();
+    });
+
+    workoutFilterDate.addEventListener("change", renderWorkouts);
+    workoutClearFilter.addEventListener("click", () => {
+      workoutFilterDate.value = "";
+      renderWorkouts();
+    });
+
+    // ----------------- JOURNAL -----------------
+    let journal = loadJson(storageKeys.journal, {});
+
+    const journalDate = document.getElementById("journalDate");
+    const journalText = document.getElementById("journalText");
+    const journalSaveBtn = document.getElementById("journalSaveBtn");
+
+    function loadJournalForDate(dateStr) {
+      journalText.value = journal[dateStr] || "";
+    }
+
+    function saveJournalCurrent() {
+      const dateStr = journalDate.value || todayStr();
+      const text = journalText.value.trim();
+      if (text) {
+        journal[dateStr] = text;
+      } else {
+        delete journal[dateStr];
+      }
+      saveJson(storageKeys.journal, journal);
+    }
+
+    journalDate.addEventListener("change", () => {
+      const dateStr = journalDate.value || todayStr();
+      if (!journalDate.value) {
+        journalDate.value = dateStr;
+      }
+      loadJournalForDate(dateStr);
+    });
+
+    journalText.addEventListener("input", () => {
+      // small debounce
+      if (journalText._saveTimeout) {
+        clearTimeout(journalText._saveTimeout);
+      }
+      journalText._saveTimeout = setTimeout(() => {
+        saveJournalCurrent();
+      }, 600);
+    });
+
+    journalSaveBtn.addEventListener("click", () => {
+      saveJournalCurrent();
+      alert("Journal saved for " + (journalDate.value || todayStr()) + ".");
+    });
+
+    // ----------------- SHORTCUTS -----------------
+    document.addEventListener("keydown", (e) => {
+      const activeTag = document.activeElement.tagName.toLowerCase();
+      const isTyping =
+        activeTag === "input" || activeTag === "textarea" || activeTag === "select";
+
+      // Single-key navigation only when not typing
+      if (!isTyping && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        if (e.key === "t" || e.key === "T") {
+          document.getElementById("todo-tab").click();
+        } else if (e.key === "g" || e.key === "G") {
+          document.getElementById("gym-tab").click();
+        } else if (e.key === "j" || e.key === "J") {
+          document.getElementById("journal-tab").click();
+        } else if (e.key === "a" || e.key === "A") {
+          todoInput.focus();
+        }
+      }
+    });
+
+    // ----------------- INIT -----------------
+    document.addEventListener("DOMContentLoaded", () => {
+      // Set default dates
+      const today = todayStr();
+      if (!workoutDate.value) workoutDate.value = today;
+      if (!workoutFilterDate.value) workoutFilterDate.value = "";
+      if (!journalDate.value) journalDate.value = today;
+
+      renderTodos();
+      renderWorkouts();
+      loadJournalForDate(journalDate.value || today);
+
+      // Focus todo field on load (shortcut style)
+      todoInput.focus();
+    });
+  </script>
+</body>
+</html>
