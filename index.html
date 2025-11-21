@@ -18,19 +18,19 @@
 
   <style>
     body {
-      background: #0f172a;
-      color: #e5e7eb;
+      background: #f3f4f6;
+      color: #111827;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
     }
     .card {
-      background: #020617;
-      border: 1px solid #1f2937;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
       border-radius: 1rem;
     }
     .card-header {
       background: transparent;
-      border-bottom: 1px solid #1f2937;
+      border-bottom: 1px solid #e5e7eb;
     }
     .nav-pills .nav-link {
       border-radius: 999px;
@@ -40,16 +40,16 @@
     }
     .form-control,
     .form-select {
-      background: #020617;
-      border-color: #1f2937;
-      color: #e5e7eb;
+      background: #ffffff;
+      border-color: #d1d5db;
+      color: #111827;
     }
     .form-control:focus,
     .form-select:focus {
       border-color: #3b82f6;
       box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-      background: #020617;
-      color: #e5e7eb;
+      background: #ffffff;
+      color: #111827;
     }
     .task-item {
       display: flex;
@@ -58,8 +58,8 @@
       gap: 0.5rem;
       padding: 0.35rem 0.6rem;
       border-radius: 0.75rem;
-      background: #020617;
-      border: 1px solid #111827;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
       font-size: 0.9rem;
     }
     .task-item.completed .task-text {
@@ -68,34 +68,38 @@
     }
     .task-meta {
       font-size: 0.75rem;
-      color: #9ca3af;
+      color: #6b7280;
     }
     .shortcut-badge {
       font-size: 0.75rem;
       border-radius: 999px;
       padding: 0.1rem 0.6rem;
-      background: #111827;
-      border: 1px solid #1f2937;
-      color: #9ca3af;
+      background: #e5e7eb;
+      border: 1px solid #d1d5db;
+      color: #374151;
       white-space: nowrap;
     }
     textarea {
       min-height: 220px;
       resize: vertical;
     }
+    /* Override dark table to a light style */
     .table-dark {
-      --bs-table-bg: #020617;
-      --bs-table-striped-bg: #020617;
-      --bs-table-striped-color: #e5e7eb;
-      --bs-table-hover-bg: #020617;
-      --bs-table-hover-color: #e5e7eb;
-      border-color: #1f2937;
+      --bs-table-bg: #ffffff;
+      --bs-table-striped-bg: #f9fafb;
+      --bs-table-striped-color: #111827;
+      --bs-table-hover-bg: #f3f4f6;
+      --bs-table-hover-color: #111827;
+      border-color: #e5e7eb;
+      color: #111827;
     }
     .badge-daily {
-      background: #0f766e;
+      background: #d1fae5;
+      color: #065f46;
     }
     .badge-once {
-      background: #4b5563;
+      background: #e5e7eb;
+      color: #374151;
     }
   </style>
 </head>
@@ -109,12 +113,20 @@
           To-Do ✅ • Gym 🏋️ • Journal 📝 — everything in one page (saved in your browser).
         </div>
       </div>
-      <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0">
+      <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0 align-items-center">
         <span class="shortcut-badge">T → To-Do</span>
         <span class="shortcut-badge">G → Gym</span>
         <span class="shortcut-badge">J → Journal</span>
         <span class="shortcut-badge">A → Focus To-Do input</span>
         <span class="shortcut-badge">Ctrl + Enter → Add To-Do</span>
+        <!-- Import / Export buttons -->
+        <button class="btn btn-outline-secondary btn-sm" id="exportDataBtn">
+          <i class="bi bi-download me-1"></i> Export
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" id="importDataBtn">
+          <i class="bi bi-upload me-1"></i> Import
+        </button>
+        <input type="file" id="importFileInput" accept="application/json" class="d-none" />
       </div>
     </div>
 
@@ -320,7 +332,7 @@
             <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
               <label for="workoutFilterDate" class="small me-1">Filter date</label>
               <input type="date" class="form-control form-control-sm" id="workoutFilterDate" />
-              <button class="btn btn-sm btn-outline-light" id="workoutClearFilter">
+              <button class="btn btn-sm btn-outline-secondary" id="workoutClearFilter">
                 Clear
               </button>
             </div>
@@ -571,7 +583,7 @@
         badge.textContent = todo.isDaily ? "Daily" : "Normal";
 
         const editBtn = document.createElement("button");
-        editBtn.className = "btn btn-sm btn-outline-light border-0";
+        editBtn.className = "btn btn-sm btn-outline-secondary border-0";
         editBtn.innerHTML = '<i class="bi bi-pencil-square"></i>';
         editBtn.title = "Edit task";
         editBtn.addEventListener("click", () => {
@@ -721,7 +733,7 @@
           const actionsTd = document.createElement("td");
 
           const editBtn = document.createElement("button");
-          editBtn.className = "btn btn-sm btn-outline-light me-1";
+          editBtn.className = "btn btn-sm btn-outline-secondary me-1";
           editBtn.innerHTML = '<i class="bi bi-pencil-square"></i>';
           editBtn.title = "Edit workout";
           editBtn.addEventListener("click", () => {
@@ -846,6 +858,77 @@
     journalSaveBtn.addEventListener("click", () => {
       saveJournalCurrent();
       alert("Journal saved for " + (journalDate.value || todayStr()) + ".");
+    });
+
+    // ----------------- IMPORT / EXPORT -----------------
+    const exportDataBtn = document.getElementById("exportDataBtn");
+    const importDataBtn = document.getElementById("importDataBtn");
+    const importFileInput = document.getElementById("importFileInput");
+
+    exportDataBtn.addEventListener("click", () => {
+      const dataBundle = {
+        todos,
+        workouts,
+        journal,
+        exportedAt: new Date().toISOString(),
+      };
+
+      const blob = new Blob([JSON.stringify(dataBundle, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "daily-dashboard-backup-" + todayStr() + ".json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    importDataBtn.addEventListener("click", () => {
+      importFileInput.value = "";
+      importFileInput.click();
+    });
+
+    importFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        try {
+          const parsed = JSON.parse(event.target.result);
+
+          if (!parsed || typeof parsed !== "object") {
+            alert("Invalid file format.");
+            return;
+          }
+
+          const importedTodos = Array.isArray(parsed.todos) ? parsed.todos : [];
+          const importedWorkouts = Array.isArray(parsed.workouts) ? parsed.workouts : [];
+          const importedJournal =
+            parsed.journal && typeof parsed.journal === "object" ? parsed.journal : {};
+
+          todos = importedTodos;
+          workouts = importedWorkouts;
+          journal = importedJournal;
+
+          saveJson(storageKeys.todos, todos);
+          saveJson(storageKeys.workouts, workouts);
+          saveJson(storageKeys.journal, journal);
+
+          renderTodos();
+          renderWorkouts();
+          loadJournalForDate(journalDate.value || todayStr());
+
+          alert("Data imported successfully!");
+        } catch (err) {
+          console.error("Import error:", err);
+          alert("Failed to import data. Please check the file.");
+        }
+      };
+      reader.readAsText(file);
     });
 
     // ----------------- SHORTCUTS -----------------
